@@ -67,21 +67,21 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.version.PSystemVersion;
 
 public class PSystemDonors extends AbstractPSystem {
-
-	public static final String DONORS = "6wW70AmEU9ELAuNYZT_MZn6AGOgeeHNOWjgQuZoZA1P0SxnDhXdMoRgDdR45mND5SGKL8Az2C-THCiPX"
-			+ "qGYJjjcQVk6-VTu2CLLilsL2UtyTQ4BoLZ2km4tbpF_b0XiJv0R8GZti1NIZZNlZcZIc_NyMPXz_WHRm"
-			+ "DBfiMLGwq5cTNHLD233np1odb9A7OjnVaSBNZIs0buu7kTfO7U4RgRFlr0AQj6RJa9are5X6YaJpiT7Q"
-			+ "SO3jOnWuqM5T7JOGEvGuw1kC0-eRCKh65JJ8ZE9cRAZcdIS4J3YXmavyKPAQeuLaHXawq65jWGAyFnC4"
-			+ "n3uffoHdAsy32hR85ZKDahhmkZDTx1-MKe7yqd0ATB0Sj0Ae0F8Vw8O_PvkvnBcENL4pv5qPvx9no6kz"
-			+ "Lx6_UQ2liwuCb9VDYvdnMdvKjnRIEUMwng-k1lcX8IjxUnXhlBA4yFnlBeNsnG8wFe2EjOQAyVV3-Sr2"
-			+ "6eJ7bBgGWtFopdOJ0R7AKbZeNLnIBV3pBccnkbWUpLayH_lNXLOoi8Ch5fkXZsi5irldZ9AgeVvvoQkk"
-			+ "urFacg1PtfVeHx9fIFp_BSqCqXsqteGFrwM8KgMlhAh5HHU1qw1_Gsu1kGFLq-JHTLg-9Bxt1-JUUv50"
-			+ "53OJx9-wPjIdtBo4UM9Bfwfu01Zl4kr6X_CWCuYg0rq7bMTas5s_tQHdsBGnTcxqYdhJRWnT7zDfoitq"
-			+ "tLpWCmo3icWE7DRUuYZWFfnG3gsMRwleDjVmRbkanZiPxAzXpWYapuXo76bBfazrb9dbiUHDNUBTt2x-"
-			+ "F7JnJ-yMjT1vT_j7wljDVYMrr2F6esimz9PTrczjikXOG6prZ0Kk0tPgjnkJ0vNSGgSsd1KznGbOzxRE"
-			+ "mN4jWukcTREIdQcT73Dh1nskINx8qO1HqPr83hwsEoFFU1G5zYVddLZrKD-757yNK2o62PvIeMmZfEWA"
-			+ "czF9f76hPzmTl8zRcozKj_7DXIS4XH-RQDDoWzUd0FSK-a5J1v0wgrNoqiR42E1tVFq6FS-j3ZpAQ6cL"
-			+ "SNQv8PRIf_S8y1ioyahsjhkX10q0";
+	public static final String DONORS = "6t0809m7nctnXhJewjSHZX8n3MVAYw086_hm054IjRdQYUQl7wS390DmUhAGwulEPXEoPaowUSvodb4K"
+			+ "owS1wwKEszpi1x5KjlyoSRkk0xPKSoN4WrWl7Rft3nm5ihXDWKGK1pOsph7iBYfxHPVT2xI0zl_Vw6NB"
+			+ "FkK4kXvWDHpiUNFiN4fgnQW7aIAg6rk0Y3jg-6hZwmXVK7txZrga9gtPDCIz1X3BI25htlOqTXpaxsCO"
+			+ "A74Zi7SmW8G3YODzaOEyFg40vdoxOSCpYj9OKtMN9moGa465RFX7Jgfp2mcFCdZWHk1g823o4nW1iR_a"
+			+ "KvApbPq16LjaYvW6GLrwl-0Hx2-cfGmvq70MsI4GGIk02Y0dGHVusjhC9Sfrx0eBZzwLyVui0P2Rh0f0"
+			+ "UbAZhxok39Y7nPCPRL--LBSMqZdbEiU_pWPurf2PlTsCRxoo68lvOow5uOi5b5-03hK6Y_7yujon40N1"
+			+ "CQKkA7Ds7bzB4H2fB8M5NiIIrGn_xv9_B2VYMtCMpPR-TUbGmd04Look0NnTo-YapWt5LKFz-v2hhkDR"
+			+ "v1gZX7cJzEpKdCn-Bxkbp23TGNDDw71T5c4kwIkhQB7e8d04wE-0XoIvawflaqVxs_8XzhO_2UvD2WUa"
+			+ "i1bW_zG-mx79uIx83VcqgueQm7YLQ1TkX6x43Qiwq7bGUOP6kEklctGFcnfZvqQlM2w66qFxIpfAll2u"
+			+ "c4l65eP6MJGR3hNNE0gu3ZkKruzTAePL0DSrl4iMeV5A1kGrp1c6z1cIZoDjYSUc3ZEpF1Oyguizczl9"
+			+ "n4C7_t1CPL7R6ySVF7uuP7gy_4gVMkeMOUuQ37ihN5PlQsTH_i1yc8u8x94Pjm7dCvCzbHpXXcyuqy4H"
+			+ "aoJ4MkUrew00jt9Y_TOZsrFJ4cJjiRe9L2S_93SoKB4xPX_Y_DqHUKPZKM2_SjwHMJVrVKY9OG7POaZm"
+			+ "b0fc6o55UzYSJWRqNkXfZKu-ywND5wBR-EM71mmAFo7HekK6hKy16g-mRzWv0AxziafUr9W80NoFqs_G"
+			+ "qvHruBECbbOPPvCRf9J4n0FyOVnIiktMl9wYrstRzh5i_FMVESjAJdw_ZFKA9Bk1DF5FXq0oORzBkolu"
+			+ "lk5JtGWjP0PsTRATAyT6JmGO2ch2CjYhzch6skMzM78nOmS0";
 
 	@Override
 	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
@@ -94,7 +94,7 @@ public class PSystemDonors extends AbstractPSystem {
 	}
 
 	private UDrawable getGraphicStrings() throws IOException {
-		final List<TextBlock> cols = getCols(getDonors(), 4, 5);
+		final List<TextBlock> cols = getCols(getDonors(), 6, 5);
 		return new UDrawable() {
 			public void drawU(UGraphic ug) {
 				final TextBlockBackcolored header = GraphicStrings.createBlackOnWhite(Arrays

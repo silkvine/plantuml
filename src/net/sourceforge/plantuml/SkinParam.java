@@ -81,17 +81,8 @@ public class SkinParam implements ISkinParam {
 
 	private final Map<String, String> params = new HashMap<String, String>();
 	private Rankdir rankdir = Rankdir.TOP_TO_BOTTOM;
-	private String dotExecutable;
 	private final UmlDiagramType type;
-
-	public String getDotExecutable() {
-		return dotExecutable;
-	}
-
-	public void setDotExecutable(String dotExecutable) {
-		Log.info("Overwritting dot in skinparam " + dotExecutable);
-		this.dotExecutable = dotExecutable;
-	}
+	private boolean useVizJs;
 
 	public void setParam(String key, String value) {
 		for (String key2 : cleanForKey(key)) {
@@ -415,6 +406,8 @@ public class SkinParam implements ISkinParam {
 		result.add("SameClassWidth");
 		result.add("HyperlinkUnderline");
 		result.add("Padding");
+		result.add("BoxPadding");
+		result.add("ParticipantPadding");
 		result.add("Guillemet");
 		result.add("SvglinkTarget");
 		result.add("DefaultMonospacedFontName");
@@ -431,6 +424,7 @@ public class SkinParam implements ISkinParam {
 		result.add("WrapWidth");
 		result.add("SwimlaneWidth");
 		result.add("SwimlaneWrapTitleWidth");
+		result.add("FixCircleLabelOverlapping");
 
 		for (FontParam p : EnumSet.allOf(FontParam.class)) {
 			final String h = humanName(p.name());
@@ -477,7 +471,8 @@ public class SkinParam implements ISkinParam {
 		return DotSplines.SPLINES;
 	}
 
-	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection) {
+	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection,
+			boolean isReverseDefine) {
 		final String value;
 		switch (param) {
 		case sequenceMessageAlignment:
@@ -488,6 +483,19 @@ public class SkinParam implements ISkinParam {
 			break;
 		default:
 			value = getValue(param.name());
+		}
+		if ("first".equalsIgnoreCase(value)) {
+			if (arrowDirection == ArrowDirection.RIGHT_TO_LEFT_REVERSE) {
+				if (isReverseDefine) {
+					return HorizontalAlignment.LEFT;
+				}
+				return HorizontalAlignment.RIGHT;
+			} else {
+				if (isReverseDefine) {
+					return HorizontalAlignment.RIGHT;
+				}
+				return HorizontalAlignment.LEFT;
+			}
 		}
 		if ("direction".equalsIgnoreCase(value)) {
 			if (arrowDirection == ArrowDirection.LEFT_TO_RIGHT_NORMAL) {
@@ -559,7 +567,14 @@ public class SkinParam implements ISkinParam {
 		return new ColorMapperReverse(order);
 	}
 
-	public boolean shadowing() {
+	public boolean shadowing(Stereotype stereotype) {
+		if (stereotype != null) {
+			checkStereotype(stereotype);
+			final String value2 = getValue("shadowing" + stereotype.getLabel(false));
+			if (value2 != null) {
+				return value2.equalsIgnoreCase("true");
+			}
+		}
 		final String value = getValue("shadowing");
 		if ("false".equalsIgnoreCase(value)) {
 			return false;
@@ -585,17 +600,25 @@ public class SkinParam implements ISkinParam {
 		if (value2 != null) {
 			return value2.equalsIgnoreCase("true");
 		}
-		return shadowing();
+		return shadowing(stereotype);
 	}
 
-	public boolean shadowing2(SkinParameter skinParameter) {
+	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter) {
 		if (skinParameter == null) {
 			throw new IllegalArgumentException();
 		}
 		final String name = skinParameter.getUpperCaseName();
+		if (stereotype != null) {
+			checkStereotype(stereotype);
+			final String value2 = getValue(name + "shadowing" + stereotype.getLabel(false));
+			if (value2 != null) {
+				return value2.equalsIgnoreCase("true");
+			}
+		}
+
 		final String value = getValue(name + "shadowing");
 		if (value == null) {
-			return shadowing();
+			return shadowing(stereotype);
 		}
 		if ("false".equalsIgnoreCase(value)) {
 			return false;
@@ -1004,6 +1027,22 @@ public class SkinParam implements ISkinParam {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean fixCircleLabelOverlapping() {
+		final String value = getValue("fixcirclelabeloverlapping");
+		if ("true".equalsIgnoreCase(value)) {
+			return true;
+		}
+		return false;
+	}
+
+	public void setUseVizJs(boolean useVizJs) {
+		this.useVizJs = useVizJs;
+	}
+
+	public boolean isUseVizJs() {
+		return useVizJs;
 	}
 
 }

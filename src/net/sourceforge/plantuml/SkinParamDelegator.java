@@ -99,24 +99,21 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getDotSplines();
 	}
 
-	public String getDotExecutable() {
-		return skinParam.getDotExecutable();
-	}
-
-	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection) {
-		return skinParam.getHorizontalAlignment(param, arrowDirection);
+	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection,
+			boolean isReverseDefine) {
+		return skinParam.getHorizontalAlignment(param, arrowDirection, isReverseDefine);
 	}
 
 	public ColorMapper getColorMapper() {
 		return skinParam.getColorMapper();
 	}
 
-	public boolean shadowing() {
-		return skinParam.shadowing();
+	public boolean shadowing(Stereotype stereotype) {
+		return skinParam.shadowing(stereotype);
 	}
 
-	public boolean shadowing2(SkinParameter skinParameter) {
-		return skinParam.shadowing2(skinParameter);
+	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter) {
+		return skinParam.shadowing2(stereotype, skinParameter);
 	}
 
 	public PackageStyle getPackageStyle() {
@@ -297,6 +294,18 @@ public class SkinParamDelegator implements ISkinParam {
 
 	public LineBreakStrategy swimlaneWrapTitleWidth() {
 		return skinParam.swimlaneWrapTitleWidth();
+	}
+
+	public boolean fixCircleLabelOverlapping() {
+		return skinParam.fixCircleLabelOverlapping();
+	}
+
+	public void setUseVizJs(boolean useVizJs) {
+		skinParam.setUseVizJs(useVizJs);
+	}
+
+	public boolean isUseVizJs() {
+		return skinParam.isUseVizJs();
 	}
 
 }

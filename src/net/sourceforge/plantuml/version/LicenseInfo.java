@@ -34,12 +34,13 @@
  */
 package net.sourceforge.plantuml.version;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -47,51 +48,32 @@ import java.util.TreeSet;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import javax.imageio.ImageIO;
+
 import net.sourceforge.plantuml.Log;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SignatureUtils;
-import net.sourceforge.plantuml.dedication.Dedication;
-import net.sourceforge.plantuml.dedication.QBlock;
 
 public class LicenseInfo {
 
 	private final static Preferences prefs = Preferences.userNodeForPackage(LicenseInfo.class);
-	private final static LicenseInfo NONE = new LicenseInfo();
+	public final static LicenseInfo NONE = new LicenseInfo(LicenseType.NONE, 0, 0, null, null, null);
 
-	public static final int POS_TYPE = 2;
-	public static final int POS_SIGNATURE = 10;
-	public static final int POS_GENERATION = 100;
-	public static final int POS_EXPIRATION = 108;
-	public static final int POS_OWNER = 128;
-
+	private final LicenseType type;
 	private final long generationDate;
 	private final long expirationDate;
 	private final String owner;
+	private final String context;
+	private final byte[] sha;
 
-	private LicenseInfo() {
-		this.expirationDate = 0;
-		this.generationDate = 0;
-		this.owner = null;
-	}
-
-	private LicenseInfo(Magic magic) throws NoSuchAlgorithmException, IOException {
-		final String signature = SignatureUtils.toHexString(magic.get(LicenseInfo.POS_SIGNATURE, 64));
-		final String local = SignatureUtils.toHexString(Magic.signature());
-		if (local.equals(signature) == false) {
-			throw new IOException();
-		}
-		final int type = magic.getByte(Magic.signature(), LicenseInfo.POS_TYPE);
-		this.generationDate = bytesToLong(magic.get(LicenseInfo.POS_GENERATION, 8));
-		this.expirationDate = bytesToLong(magic.get(LicenseInfo.POS_EXPIRATION, 8));
-		this.owner = magic.getString(LicenseInfo.POS_OWNER);
-	}
-
-	public static long bytesToLong(byte[] b) {
-		long result = 0;
-		for (int i = 0; i < 8; i++) {
-			result <<= 8;
-			result |= (b[i] & 0xFF);
-		}
-		return result;
+	public LicenseInfo(LicenseType type, long generationDate, long expirationDate, String owner, String context,
+			byte[] sha) {
+		this.type = type;
+		this.generationDate = generationDate;
+		this.expirationDate = expirationDate;
+		this.owner = owner;
+		this.context = context;
+		this.sha = sha;
 	}
 
 	public static void persistMe(String key) throws BackingStoreException {
@@ -103,16 +85,26 @@ public class LicenseInfo {
 
 	public static synchronized LicenseInfo retrieveQuick() {
 		if (cache == null) {
-			return retrieveSlow();
+			cache = retrieveDistributor();
+		}
+		if (cache == null) {
+			cache = retrieveNamedSlow();
 		}
 		return cache;
 	}
 
-	public static synchronized LicenseInfo retrieveSlow() {
+	public static boolean retrieveNamedOrDistributorQuickIsValid() {
+		return retrieveQuick().isValid();
+	}
+
+	public static synchronized LicenseInfo retrieveNamedSlow() {
 		cache = LicenseInfo.NONE;
+		if (OptionFlags.ALLOW_INCLUDE == false) {
+			return cache;
+		}
 		final String key = prefs.get("license", "");
 		if (key.length() > 0) {
-			cache = setIfValid(retrieve(key), cache);
+			cache = setIfValid(retrieveNamed(key), cache);
 			if (cache.isValid()) {
 				return cache;
 			}
@@ -134,41 +126,66 @@ public class LicenseInfo {
 		return cache;
 	}
 
-	private static LicenseInfo setIfValid(LicenseInfo value, LicenseInfo def) {
-		if (value.isValid() || def.isNone()) {
-			return value;
-		}
-		return def;
-	}
-
-	private static LicenseInfo retrieve(File f) throws IOException {
-		final BufferedReader br = new BufferedReader(new FileReader(f));
-		final String s = br.readLine();
-		br.close();
-		final LicenseInfo result = retrieve(s);
-		if (result != null) {
-			Log.info("Reading license from " + f.getAbsolutePath());
-		}
-		return result;
-	}
-
-	public static LicenseInfo retrieve(final String key) {
-		if (key.matches("^[0-9a-z]+$")) {
+	public static LicenseInfo retrieveNamed(final String key) {
+		if (key.length() > 99 && key.matches("^[0-9a-z]+$")) {
 			try {
-				final BigInteger lu = new BigInteger(key, 36);
-				final QBlock qb2 = new QBlock(lu);
-				final QBlock qb3 = qb2.change(Dedication.E, Dedication.N);
-				final Magic magic = qb3.toMagic();
-
-				final String sig = SignatureUtils.toHexString(Magic.signature());
-				magic.xor(SignatureUtils.getSHA512raw(SignatureUtils.salting(sig, Magic.getSalt(sig))));
-				return new LicenseInfo(magic);
+				final String sig = SignatureUtils.toHexString(PLSSignature.signature());
+				return PLSSignature.retrieveNamed(sig, key, true);
 			} catch (Exception e) {
 				// e.printStackTrace();
-				Log.info("Error " + e);
+				Log.info("Error retrieving license info" + e);
 			}
 		}
 		return LicenseInfo.NONE;
+	}
+
+	public static BufferedImage retrieveDistributorImage(LicenseInfo licenseInfo) {
+		if (licenseInfo.getLicenseType() != LicenseType.DISTRIBUTOR) {
+			return null;
+		}
+		try {
+			final byte[] s1 = PLSSignature.retrieveDistributorImageSignature();
+			if (SignatureUtils.toHexString(s1).equals(SignatureUtils.toHexString(licenseInfo.sha)) == false) {
+				return null;
+			}
+			final InputStream dis = PSystemVersion.class.getResourceAsStream("/distributor.png");
+			if (dis == null) {
+				return null;
+			}
+			try {
+				final BufferedImage result = ImageIO.read(dis);
+				return result;
+			} finally {
+				dis.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static LicenseInfo retrieveDistributor() {
+		final InputStream dis = PSystemVersion.class.getResourceAsStream("/distributor.txt");
+		if (dis == null) {
+			return null;
+		}
+		try {
+			final BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+			final String licenseString = br.readLine();
+			br.close();
+			final LicenseInfo result = PLSSignature.retrieveDistributor(licenseString);
+			final Throwable creationPoint = new Throwable();
+			creationPoint.fillInStackTrace();
+			for (StackTraceElement ste : creationPoint.getStackTrace()) {
+				if (ste.toString().contains(result.context)) {
+					return result;
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static Collection<File> fileCandidates() {
@@ -180,15 +197,33 @@ public class LicenseInfo {
 			if (dir.isFile()) {
 				dir = dir.getParentFile();
 			}
-			if (dir.isDirectory()) {
+			if (dir != null && dir.isDirectory()) {
 				result.add(new File(dir, "license.txt"));
 			}
 		}
 		return result;
 	}
 
+	private static LicenseInfo setIfValid(LicenseInfo value, LicenseInfo def) {
+		if (value.isValid() || def.isNone()) {
+			return value;
+		}
+		return def;
+	}
+
+	private static LicenseInfo retrieve(File f) throws IOException {
+		final BufferedReader br = new BufferedReader(new FileReader(f));
+		final String s = br.readLine();
+		br.close();
+		final LicenseInfo result = retrieveNamed(s);
+		if (result != null) {
+			Log.info("Reading license from " + f.getAbsolutePath());
+		}
+		return result;
+	}
+
 	public static void main(String[] args) {
-		LicenseInfo info = retrieveSlow();
+		LicenseInfo info = retrieveNamedSlow();
 		System.err.println("valid=" + info.isValid());
 		System.err.println("info=" + info.owner);
 
@@ -216,6 +251,14 @@ public class LicenseInfo {
 
 	public boolean hasExpired() {
 		return owner != null && System.currentTimeMillis() > this.expirationDate;
+	}
+
+	public final LicenseType getLicenseType() {
+		return type;
+	}
+
+	public final String getContext() {
+		return context;
 	}
 
 }

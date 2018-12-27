@@ -44,7 +44,6 @@ import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.CharSequence2;
 import net.sourceforge.plantuml.ErrorUml;
 import net.sourceforge.plantuml.ErrorUmlType;
-import net.sourceforge.plantuml.NewpagedDiagram;
 import net.sourceforge.plantuml.PSystemError;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.classdiagram.command.CommandHideShowByGender;
@@ -209,6 +208,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		// cmds.add(new CommandMultilinesComment());
 		cmds.add(new CommandPragma());
 		cmds.add(new CommandTitle());
+		cmds.add(new CommandMainframe());
 		cmds.add(new CommandCaption());
 		cmds.add(new CommandMultilinesTitle());
 		cmds.add(new CommandMultilinesLegend());

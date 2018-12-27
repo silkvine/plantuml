@@ -80,6 +80,7 @@ public class LanguageDescriptor {
 		type.add("package");
 		type.add("queue");
 		type.add("archimate");
+		type.add("diamond");
 
 		keyword.add("@startuml");
 		keyword.add("@enduml");
@@ -151,6 +152,9 @@ public class LanguageDescriptor {
 		keyword.add("again");
 		keyword.add("kill");
 		keyword.add("order");
+		keyword.add("allow_mixing");
+		keyword.add("allowmixing");
+		keyword.add("mainframe");
 
 		preproc.add("!exit");
 		preproc.add("!include");

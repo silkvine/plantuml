@@ -52,7 +52,7 @@ import net.sourceforge.plantuml.vizjs.VizJsEngine;
 
 public class GraphvizUtils {
 
-	private static final String VIZJS = "vizjs";
+	public static final String VIZJS = "vizjs";
 	private static int DOT_VERSION_LIMIT = 226;
 
 	private static boolean isWindows() {
@@ -66,7 +66,7 @@ public class GraphvizUtils {
 	}
 
 	public static final void setDotExecutable(String value) {
-		dotExecutable = value;
+		dotExecutable = value == null ? null : value.trim();
 	}
 
 	public static Graphviz create(ISkinParam skinParam, String dotString, String... type) {
@@ -89,7 +89,7 @@ public class GraphvizUtils {
 	}
 
 	private static boolean useVizJs(ISkinParam skinParam) {
-		if (skinParam != null && VIZJS.equalsIgnoreCase(skinParam.getDotExecutable()) && VizJsEngine.isOk()) {
+		if (skinParam!=null && skinParam.isUseVizJs() && VizJsEngine.isOk()) {
 			return true;
 		}
 		if (VIZJS.equalsIgnoreCase(getenvGraphvizDot()) && VizJsEngine.isOk()) {

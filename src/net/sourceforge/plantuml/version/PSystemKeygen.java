@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.version;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,7 @@ import java.util.prefs.BackingStoreException;
 
 import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SignatureUtils;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
@@ -86,17 +88,18 @@ public class PSystemKeygen extends AbstractPSystem {
 	}
 
 	public DiagramDescription getDescription() {
-		return new DiagramDescription("(Genkey)");
+		return new DiagramDescription("(Key)");
 	}
 
 	private void drawInternal(UGraphic ug) throws IOException {
+		final LicenseInfo installed = LicenseInfo.retrieveNamedSlow();
 		if (key.length() == 0) {
-			drawFlash(ug);
+			drawFlash(ug, installed);
 			return;
 		}
-		final LicenseInfo info = LicenseInfo.retrieve(key);
+		final LicenseInfo info = LicenseInfo.retrieveNamed(key);
 		if (info.isNone()) {
-			drawFlash(ug);
+			drawFlash(ug, installed);
 			return;
 		}
 		final List<String> strings = header();
@@ -110,7 +113,6 @@ public class PSystemKeygen extends AbstractPSystem {
 			strings.add("<i>Error: Cannot store license key.</i>");
 		}
 
-		final LicenseInfo installed = LicenseInfo.retrieveSlow();
 		if (installed.isNone()) {
 			strings.add("No license currently installed.");
 			strings.add(" ");
@@ -133,29 +135,31 @@ public class PSystemKeygen extends AbstractPSystem {
 		final ArrayList<String> strings = new ArrayList<String>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
 		strings.add("(" + License.getCurrent() + " source distribution)");
-		strings.add("Loaded from " + Version.getJarPath());
+		if (OptionFlags.ALLOW_INCLUDE) {
+			strings.add("Loaded from " + Version.getJarPath());
+		}
 		strings.add(" ");
 		return strings;
 	}
 
-	public void drawFlash(UGraphic ug) throws IOException {
+	private void drawFlash(UGraphic ug, LicenseInfo info) throws IOException {
 		final List<String> strings = header();
 		strings.add("To get your <i>Professional Edition License</i>,");
-		strings.add("please send this flashcode to <b>plantuml@gmail.com</b> :");
+		strings.add("please send this qrcode to <b>plantuml@gmail.com</b> :");
 
 		TextBlock disp = GraphicStrings.createBlackOnWhite(strings);
 		disp.drawU(ug);
 
 		ug = ug.apply(new UTranslate(0, disp.calculateDimension(ug.getStringBounder()).getHeight()));
 		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-		final BufferedImage im = utils.exportFlashcode(Version.versionString() + "\n"
-				+ SignatureUtils.toHexString(Magic.signature()));
-		final UImage flash = new UImage(im).scaleNearestNeighbor(4);
-		ug.draw(flash);
+		final BufferedImage im = utils.exportFlashcode(
+				Version.versionString() + "\n" + SignatureUtils.toHexString(PLSSignature.signature()), Color.BLACK, Color.WHITE);
+		if (im != null) {
+			final UImage flash = new UImage(im).scaleNearestNeighbor(4);
+			ug.draw(flash);
+			ug = ug.apply(new UTranslate(0, flash.getHeight()));
+		}
 
-		ug = ug.apply(new UTranslate(0, flash.getHeight()));
-
-		final LicenseInfo info = LicenseInfo.retrieveSlow();
 		if (info.isNone() == false) {
 			strings.clear();
 			strings.add("<u>Installed license</u>:");

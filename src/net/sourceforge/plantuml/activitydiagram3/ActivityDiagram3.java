@@ -57,6 +57,7 @@ import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockRecentred;
+import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
@@ -139,7 +140,8 @@ public class ActivityDiagram3 extends UmlDiagram {
 
 	public void start() {
 		manageSwimlaneStrategy();
-		current().add(new InstructionStart(swinlanes.getCurrentSwimlane()));
+		current().add(new InstructionStart(swinlanes.getCurrentSwimlane(), nextLinkRenderer()));
+		setNextLinkRendererInternal(LinkRendering.none());
 	}
 
 	public void stop() {
@@ -194,11 +196,11 @@ public class ActivityDiagram3 extends UmlDiagram {
 		// COMPRESSION
 		TextBlock result = swinlanes;
 		// result = new TextBlockCompressedOnY(CompressionMode.ON_Y, result);
-		// result = new TextBlockCompressedOnXorY(CompressionMode.ON_X, result);
+		result = new TextBlockCompressedOnXorY(CompressionMode.ON_X, result);
 		result = new TextBlockCompressedOnXorY(CompressionMode.ON_Y, result);
 		result = new TextBlockRecentred(result);
 		final ISkinParam skinParam = getSkinParam();
-		result = new AnnotatedWorker(this, skinParam).addAdd(result);
+		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
 		// final Dimension2D dim = TextBlockUtils.getMinMax(result, fileFormatOption.getDefaultStringBounder())
 		// .getDimension();
 		final Dimension2D dim = result.getMinMax(fileFormatOption.getDefaultStringBounder()).getDimension();
@@ -389,10 +391,11 @@ public class ActivityDiagram3 extends UmlDiagram {
 		return CommandExecutionResult.ok();
 	}
 
-	public void startGroup(Display name, HtmlColor backColor, HtmlColor titleColor, HtmlColor borderColor) {
+	public void startGroup(Display name, HtmlColor backColor, HtmlColor titleColor, HtmlColor borderColor,
+			USymbol type, double roundCorner) {
 		manageSwimlaneStrategy();
 		final InstructionGroup instructionGroup = new InstructionGroup(current(), name, backColor, titleColor,
-				swinlanes.getCurrentSwimlane(), borderColor, nextLinkRenderer());
+				swinlanes.getCurrentSwimlane(), borderColor, nextLinkRenderer(), type, roundCorner);
 		current().add(instructionGroup);
 		setCurrent(instructionGroup);
 	}

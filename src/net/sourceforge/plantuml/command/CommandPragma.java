@@ -39,6 +39,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 
 public class CommandPragma extends SingleLineCommand<UmlDiagram> {
 
@@ -53,8 +54,9 @@ public class CommandPragma extends SingleLineCommand<UmlDiagram> {
 		system.getPragma().define(name, value);
 		if (name.equalsIgnoreCase("graphviz_dot") && value.equalsIgnoreCase("jdot")) {
 			system.setUseJDot(true);
-		} else if (name.equalsIgnoreCase("graphviz_dot")) {
-			system.setDotExecutable(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(value));
+		}
+		if (name.equalsIgnoreCase("graphviz_dot") && value.equalsIgnoreCase(GraphvizUtils.VIZJS)) {
+			system.getSkinParam().setUseVizJs(true);
 		}
 		return CommandExecutionResult.ok();
 	}
